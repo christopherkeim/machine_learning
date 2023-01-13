@@ -67,7 +67,7 @@ class MarkovChain:
         cList = list[:]
         rOrder = []
         for i in range(len(list)):
-            choice = round(random.randint(0, len(list)-(-i))
+            choice = round(random.randint(0, len(list)-(-i)))
             rOrder[i] = cList[choice]
             del cList[choice]
         return rOrder
