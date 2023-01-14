@@ -33,13 +33,15 @@ class DecisionTree:
 			samples = lastColMatrix
 			
 		if mode == 'c':
+		    
 			self.tree = self.train(samples, scoreFxn=self.entropy)
 			
 		elif mode == 'r':
+		
 			self.tree = self.train(samples, scoreFxn=self.variance)
 			
 		else:
-			mode = 'c'
+			
 			self.tree = self.train(samples, scoreFxn=self.entropy)
 			print("mode parameter can only be 'c' for classification or 'r' for regression - set to 'c' as default.")
 			
@@ -61,8 +63,9 @@ class DecisionTree:
 		
 		Can handle numerical or categorical input variable values.
 		"""
-		#determines whether a sample is in True or False group
-		def splitFunction(self, sample, varIndex, value):
+		#determines whether a sample
+		#is in True or False group
+		def splitFunction(sample, varIndex, value):
 			if isinstance(value, int) or isinstance(value, float):
 				if sample[varIndex] >= value:
 					return True
@@ -76,16 +79,19 @@ class DecisionTree:
 					
 				else:
 					return False
-			#divide the samples into a True group and False group
-			groupTrue = []
-			groupFalse = []
-			for s in samples:
-				if self.splitFunction(s, varIndex, value):
-					groupTrue.append(s)
-				else:
-					groupFalse.append(s)
-			#return them as a tuple holding two 2d nested list matrices
-			return (groupTrue, groupFalse)
+		#divide the samples into a 
+		#True group and False group
+		groupTrue = []
+		groupFalse = []
+		for s in samples:
+			if splitFunction(s, varIndex, value):
+				groupTrue.append(s)
+			else:
+				groupFalse.append(s)
+		#return them as a tuple 
+		#holding two 2d nested
+		#list matrices
+		return (groupTrue, groupFalse)
 			
 	def outputValueCounts(self, samples):
 		"""Takes a 2d nested list as input, counts each sample's output variable value, and returns a dictionary of each unique output variable value along with its count. 
@@ -94,7 +100,8 @@ class DecisionTree:
 		"""
 		valCounts = {}
 		for s in samples:
-			#assume target output variable is last index
+			#assume target output
+			#variable is last index
 			value = s[len(s)-1]
 			if value not in valCounts:
 				valCounts[value] = 0
@@ -104,14 +111,16 @@ class DecisionTree:
 	def entropy(self, samples):
 		"""
 		Takes a 2d nested list of samples, extracts a frequency count of the output variable values, them calculates the entropy for this group
-        of samples as entropy = E pi * log2(pi)   [from i=1 to n]
+of samples as entropy = E pi * log2(pi)   [from i=1 to n]
 		"""
 		#log2 function
-		def log2(self, x):
+		def log2(x):
 			return log(x) / log(2)
 			
-		#store the frequency counts of the output variable values in 
-        #this group of samples in a dictionary
+		#store the frequency counts of
+		#the output variable values
+		#in this group of samples in
+		#a dictionary
 		counts = self.outputValueCounts(samples)
 		
 		#calculate the entropy
@@ -119,7 +128,7 @@ class DecisionTree:
 		
 		for value in counts:
 			p = float(counts[value] / len(samples))
-			entropy -= p * self.log2(p)
+			entropy -= p * log2(p)
 			
 		return entropy
 		
@@ -130,10 +139,11 @@ class DecisionTree:
 		if len(samples) == 0:
 			return 0
 			
-		#extract output values, assume last index
+		#extract output values, assume
+		#last index
 		values = []
 		for i in range(len(samples)):
-			values[i] = float(samples[i][len(samples[i]) -1])
+			values.append(float(samples[i][len(samples[i]) -1]))
 			
 		#calculate the mean
 		mean = sum(values) / len(values)
@@ -146,7 +156,7 @@ class DecisionTree:
 		
 		return variance
 		
-	def train(self, samples, scoreFxn=self.entropy):
+	def train(self, samples, scoreFxn):
 		"""
 		Learning algorithm for CART which recursively creates the decision tree model from the 2d nested list matrix.
 		"""
@@ -154,32 +164,46 @@ class DecisionTree:
 		if len(samples) == 0:
 			return TreeNode()
 			
-		#calculate current node's entropy or variance; if root node this is entropy/variance
-        #of the entire dataset
+		#calculate current node's
+		#entropy or variance; if root
+		#node this is entropy/variance
+		# of the entire dataset
 		currentScore = scoreFxn(samples)
 		
-		#variables to track best information gain, best (variable, value) pair, and best sample 
-        #groups resulting from divide
+		#variables to track best 
+		#information gain, best (
+		#variable, value) pair, and best
+		#sample groups resulting from
+		#divide
 		bestGain = 0.0
 		bestVar = None
 		bestGroups = None
 		
-		#loop through each variable in dataset, excluding last column
-		colExclude = len(samples) - 1
+		#loop through each variable in
+		#dataset, excluding last column
+		colExclude = len(samples[0]) - 1
 		for variable in range(0, colExclude):
-			#extract the list of unique values for this variable
+			#extract the list of unique
+			#values for this variable
 			varVals = {}
 			for s in samples:
 				varVals[s[variable]] =  1
 				
-			#loop through each possible value of this variable, 
-			#divide the samples into 2 groups on this value, calculate the information
-			#gain, and store the best gain, (variable, value), and (groupTrue, groupFalse)
-			for value in varValues.keys():
-				#split the node's samples on this value
-				(group1, group2) = self.divideSet(samples, variable, value)
+			#loop through each possible
+			#value of this variable, 
+			#divide the samples into 2
+			#groups on this value, 
+			#calculate the information
+			#gain, and store the best
+			#gain, (variable, value),
+			#and (groupTrue, groupFalse)
+			for value in varVals.keys():
+				#split the node's samples
+				#on this value
+				group1, group2 = self.divideSet(samples, variable, value)
 				
-				#calculate the information gain for this split
+				#calculate the information
+				#gain for this split
 				p = float(len(group1)/len(samples))
 				gain = currentScore - p * scoreFxn(group1) - (1 - p) * scoreFxn(group2)
 				
@@ -189,13 +213,17 @@ class DecisionTree:
 					bestVar = (variable, value)
 					bestGroups = (group1, group2)
 					
-		#recursion point: if the entropy/variance can still be lowered, create 2 new branches with train()
+		#recursion point: if the entropy/
+		#variance can still be lowered,
+		#create 2 new branches with 
+		#train()
 		if bestGain > 0:
-			trueBranch = self.train(bestGroups[0])
-			falseBranch = self.train(bestGroups[1])
+			trueBranch = self.train(bestGroups[0], scoreFxn)
+			falseBranch = self.train(bestGroups[1], scoreFxn)
 			return TreeNode(columnId=bestVar[0],value=bestVar[1],trueBranch=trueBranch,falseBranch=falseBranch)
 			
-		#if the entropy/variance is 0 this is a leaf
+		#if the entropy/variance is 0, 
+		#this is a leaf
 		else:
 			return TreeNode(results=self.outputValueCounts(samples))
 			
@@ -205,19 +233,27 @@ class DecisionTree:
 		
 		Can handle classification trees or regression trees.
 		"""
-		#recursively traverse down the tree structure to the branch nodes that only have leaf nodes as children
+		#recursively traverse down 
+		#the tree structure to the 
+		#branch nodes that only have 
+		#leaf nodes as children
 		if tree.trueBranch.results == None:
 			self.prune(tree.trueBranch, mingain)
 			
 		if tree.falseBranch.results == None:
 			self.prune(tree.falseBranch, mingain)
 			
-		#if both subbranches are now leaves see if they should be merged
+		#if both subbranches are now
+		#leaves see if they should be 
+		#merged
 		if tree.trueBranch.results != None and tree.falseBranch.results != None:
 			tb, fb = [],[]
 			
-			#build a combined dataset of output values; note this logic works for both categorical and
-            #numerical output variables
+			#build a combined dataset
+			#of output values; note this
+			#logic works for both 
+			#categorical and numerical
+			#output variables
 			for value, count in tree.trueBranch.results.items():
 				for i in range(count):
 					tb.append([value])
@@ -226,7 +262,8 @@ class DecisionTree:
 				for i in range(count):
 					fb.append([value])
 					
-			#test the increase in entropy or variance
+			#test the increase in entropy
+			#or variance
 			if isinstance(fb[0][0], int) or isinstance(fb[0][0], float):
 				delta = self.variance(tb+fb) - ((self.variance(tb) + self.variance(fb)) / 2)
 				
@@ -238,21 +275,27 @@ class DecisionTree:
 				tree.falseBranch = None
 				tree.results = self.outputValueCounts(tb+fb)
 				
-	def classify(self, sample, tree=self.tree):
+	def classify(self, sample, tree):
 		"""
-		Takes a new sample vector (minus an output variable index) and returns its predicted output value.
+		Takes a new sample vector , (minus an output variable index) and returns its predicted output value.
 		
 		Recursively traverses down the decision tree checking its input variable values against each decision node.
 		"""
-		#recursion endpoint: return the results stored in this leaf node
+		#recursion endpoint: return the
+		#results stored in this leaf node
 		if tree.results != None:
 			return tree.results
 			
-		#search the tree top down checking your vector against each decision node
+		#search the tree top down
+		#checking your vector 
+		#against each decision node
 		else:
 			value = sample[tree.columnId]
 			
-			#if data for this variable is missing, follow both the trueBranch and falseBranch
+			#if data for this variable
+			#is missing, follow both
+			#the trueBranch and
+			#falseBranch
 			if value == None:
 				trueResults = self.classify(sample, tree=tree.trueBranch)
 				falseResults = self.classify(sample, tree.falseBranch)
@@ -261,7 +304,8 @@ class DecisionTree:
 				trueCount = sum(trueResults.values())
 				falseCount = sum(falseResults.values())
 				
-				#true and false weight calculations
+				#true and false weight 
+				#calculations
 				tw = float(trueCount / (trueCount + falseCount))
 				fw = float(falseCount / (trueCount + falseCount))
 				
@@ -279,8 +323,12 @@ class DecisionTree:
 						
 				return results
 				
-			#else, if there is data for this variable in the sample evaluate its value against this 
-            #decision nod, then call self.classify() on either its trueBranch or falseBranch
+			#else, if there is data for this
+			#variable in the sample 
+			#evaluate its value against
+			#this decision nod, then call
+			#self.classify() on either its
+			#trueBranch or falseBranch
 			else:
 				if isinstance(value, int) or isinstance(value, float):
 					if value >= tree.value:
@@ -317,13 +365,14 @@ class DecisionTree:
 					
 				return max(self.getDepth(tree.trueBranch), self.getDepth(tree.falseBranch)) + 1
 				
-	def drawTree(self, tree=self.tree, varNames=None, jpeg='tree.jpg'):
+	def drawTree(self, tree, varNames=None, jpeg='tree.jpg'):
 				"""
 				Draws an image of the decision tree and saves it as a .jpg file.
 				
 				Calculates total width and height of image, sets up canvas, passes canvas, tree, and list of variable names to self.drawNode(), then saves image.
 				"""
-				#calculate width and height of image
+				#calculate width and height
+				#of image
 				w = self.getWidth(tree) * 100
 				h = self.getDepth(tree) * 100 + 120
 				
@@ -345,15 +394,21 @@ class DecisionTree:
 				"""
 				#branch TreeNodes
 				if tree.results == None:
-					#calculate the widths of this node's true and false branches
+					#calculate the widths of
+					#this node's 
+					#true and false branches
 					w1 = self.getWidth(tree.falseBranch) * 100
 					w2 = self.getWidth(tree.trueBranch) * 100
 					
-					#determine total width required by node
+					#determine total width
+					#required by node
 					left = x - (w1 + w2) / 2
 					right = x + (w1 + w2) / 2
 					
-					#draw the variable and value decision condition string for this TreeNode
+					#draw the variable and
+					#value decision 
+					#condition string for this
+					#TreeNode
 					if isinstance(tree.value, int) or isinstance(tree.value, float):
 						if varNames != None:
 							draw.text((x-20, y-10), varNames[tree.columnId] + ' > ' + str(tree.value), (0,0,0))
@@ -368,11 +423,14 @@ class DecisionTree:
 						else:
 							draw.text((x-20, y-10), 'Variable ' + str(tree.columnId) + ' = ' + str(tree.value), (0,0,0))
 							
-					#draw links to the branches
+					#draw links to the 
+					#branches
 					draw.line((x, y, left + w1/2, y + 100), fill=(0,0,0))
 					draw.line((x, y, right - w2/2, y + 100), fill=(0,0,0))
 					
-					#recursion point: draw true and false nodes
+					#recursion point: 
+					#draw true and false
+					#nodes
 					self.drawNode(draw, tree.falseBranch, left + w1/2, y + 100, varNames)
 					self.drawNode(draw, tree.trueBranch, right - w2/2, y + 100, varNames)
 				else:
@@ -381,8 +439,3 @@ class DecisionTree:
 						text += '%s:	%d\n' % (str(value), count)
 						
 					draw.text((x - 20, y), text, (0,0,0))
-					
-	
-				
-			
-	
