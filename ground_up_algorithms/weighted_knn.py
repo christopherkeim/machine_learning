@@ -63,11 +63,11 @@ class WeightedKnn:
         distance_list.sort()
         return distance_list
     
-    def predict(self, target_sample, k=5):
+    def predict(self, target_sample, data, k=5):
         """
         The prediction method for WeightedKnn.
         
-        Takes a target sample and k-value as inputs and calculates a weighted kNN output value prediction for this target sample.
+        Takes a target sample, dataset, and k-value as inputs and calculates a weighted kNN output value prediction for this target sample.
         """
         #Calculate the Euclidean distances between this target sample and every sample in the model's dataset. 
         d_list = self.get_distances(target_sample)
@@ -79,8 +79,8 @@ class WeightedKnn:
             distance = d_list[i][0]
             index = d_list[i][1]
             weight = self.gaussian_weight(distance)
-            avg += weight * self.data[index]['output']
-            total_weight =+ weight
+            avg += weight * data[index]['output']
+            total_weight += weight
         pred = avg / total_weight
         return pred
     
@@ -107,7 +107,7 @@ class WeightedKnn:
         error = 0.0
         for sample in test_set:
             pred = alg_f(sample['input'], data=train_set)
-            error += (pred - sample['result']) ** 2 
+            error += (pred - sample['output']) ** 2
         mean_error = error / len(test_set)
         return mean_error
     
