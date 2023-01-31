@@ -123,7 +123,99 @@ class WeightedKnn:
         mean_error = error / trials
         return mean_error
     
-    def rescale_data(self, data, samples):
+    def rescale_data(self, data, scales):
         """
+        Takes an object list structured dataset and a list of scaling constants as inputs and returns a new dataset with every sample's input variable values
+        scaled by these constants.
+        """
+        scaled_data = []
+        for sample in data:
+            scaled_vals = []
+            for i in range(len(scales)):
+                scaled_vals.append(scales[i] * sample['input'][i])
+            scaled_data.append({'input': scaled_vals, 'output': sample['output']})
+        return scaled_data
+    
+    def cost_function(self, scales):
+        """
+        The cost function that will be passed into our optimization function.
+        
+        Takes a list of scaling constants as input, constructs a scaled dataset with them using self.rescale_data(), then runs cross-validation with
+        this dataset and returns its grand average error. 
+        """
+        sdata = self.rescale_data(self.data, scales)
+        return self.cross_validate(data=sdata, trials=10)
+    
+    def optimize_scales(self, low=0, high=20, mode='g'):
+        """
+        Runs either genetic optimization or annealing optimization, using cross-validation as a cost function, and returns the best set of scaling constants
+        in a list.
+        """
+        weight_domain = [(low, high)] * len(self.data[0]['input'])
+        if mode == 'g':
+            return Optimize.genetic_optimize(weight_domain, self.cost_function, pop_size=5, maxiter=20)
+        
+        elif mode == 'a':
+            return Optimize.annealing_optimize(weight_domain, self.cost_function)
+        
+        else:
+            print("mode parameter can only be 'g' for genetic optimization or 'a' for annealing optmization. mode set to 'g' as default.")
+            return Optimize.genetic_optimize(weight_domain, self.cost_function, pop_size=5, maxiter=20)
+        
+    def probability(self, target_sample, min, max, k=5, weight_f=self.gaussian_weight):
+        """
+        Takes a target sample, min output value, max output value, k-value, and distance weight function as inputs and calculates the probability 
+        that the target sample's output value falls within this range.
+        
+        p = Σ Wi kNN within range / Σ Wi kNN total samples
+        """
+        #Get the Euclidean distances between the target sample and every other sample in the dataset.
+        dlist = self.get_distances(target_sample)
+        #Distance weight sums of kNN within range and kNN total samples
+        nweight = 0.0
+        tweight = 0.0
+        #Run the probability calculation for this sample's k-nearest neighbors.
+        for i in range(k):
+            dist = dlist[i][0]
+            index = dlist[i][1]
+            weight = weight_f(dist)
+            value = self.data[index]['output']
+            #Is this out value within our range?
+            if value > min and value <= max:
+                nweight += weight
+            tweight += weight
+        if tweight == 0:
+            return 0
+        #Probability is kNN weights in range divided by all kNN weights.
+        return nweight / tweight
+    
+    def probability_graph(self, target_sample, max, k=5, weight_f=self.gaussian_weight, ss=5.0):
+        """
+        Takes a target sample, maximum output value, k-value, distance weight function, and an ss parameter specifying the extent of smoothing as inputs. 
+        
+        Graphs the probability density function for this sample's output variable values. 
+        """
+        #Slice the output variable's value range into 0.1 length intervals and store these in an array using NumPy's arange function. 
+        x = np.arange(0.0, max, 0.1)
+        #Calculate the probability for every interval in this range
+        probs = []
+        for val in x:
+            probs.append(self.probability(target_sample, val, val+0.1, k, weight_f))
+        #Create the smoothed probability density curve.
+        smoothed_probs = []
+        for i in range(len(probs)):
+            sp = 0.0
+            for j in range(0, len(probs)):
+                dist = abs(i - j) * 0.1
+                weight = self.gaussian_weight(dist, sigma=ss)
+                sp += weight * probs[j]
+            smoothed_probs.append(sp)
+        smoothed_probs = np.array(smoothed_probs)
+        #Plot and show the graph.
+        plt.plot(x, smoothed_probs)
+        plt.title('Probability Density Graph')
+        plt.xlabel('Output Variable Value')
+        plt.ylabel('Probability')
+        plt.show()
         
         
