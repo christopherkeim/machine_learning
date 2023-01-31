@@ -106,7 +106,7 @@ class WeightedKnn:
         """
         error = 0.0
         for sample in test_set:
-            pred = alg_f(data=train_set, sample['input'])
+            pred = alg_f(sample['input'], data=train_set)
             error += (pred - sample['result']) ** 2 
         mean_error = error / len(test_set)
         return mean_error
