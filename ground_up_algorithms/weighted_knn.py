@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
-import matplotlib.pylot as plt
+from matplotlib import pyplot as plt
 
 import math
 import random
