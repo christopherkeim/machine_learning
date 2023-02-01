@@ -49,15 +49,15 @@ class WeightedKnn:
         """
         return math.e ** ((-distance_score ** 2) / (2 * sigma ** 2))
     
-    def get_distances(self, target_sample):
+    def get_distances(self, target_sample, data):
         """
         Calculates the Euclidean distances between an input target sample and every sample in the dataset.
         
         Stores them in a list of (distance, index) tuples and returns this list sorted from least to greatest.
         """
         distance_list = []
-        for i in range(len(self.data)):
-            comp_sample = self.data[i]['input']
+        for i in range(len(data)):
+            comp_sample = data[i]['input']
             dist = (self.euclidean(target_sample, comp_sample), i)
             distance_list.append(dist)
         distance_list.sort()
@@ -95,9 +95,13 @@ class WeightedKnn:
                 
             else:
                 train_set.append(sample)
-                
-        return train_set, test_set
-    
+        
+        if len(test_set) == 0 or len(train_set) == 0:
+            return self.divide_data(data, test)
+        
+        else:        
+            return train_set, test_set        
+
     def test_algorithm(self, alg_f, train_set, test_set):
         """
         Runs a single cross-validation test on a passed in algorithm function, training set, and test set.
