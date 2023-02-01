@@ -70,7 +70,7 @@ class WeightedKnn:
         Takes a target sample, dataset, and k-value as inputs and calculates a weighted kNN output value prediction for this target sample.
         """
         #Calculate the Euclidean distances between this target sample and every sample in the model's dataset. 
-        d_list = self.get_distances(target_sample)
+        d_list = self.get_distances(target_sample, data)
         #Initialize avg and total_weight variables
         avg = 0.0
         total_weight = 0.0
@@ -174,7 +174,7 @@ class WeightedKnn:
         p = Σ Wi kNN within range / Σ Wi kNN total samples
         """
         #Get the Euclidean distances between the target sample and every other sample in the dataset.
-        dlist = self.get_distances(target_sample)
+        dlist = self.get_distances(target_sample, self.data)
         #Distance weight sums of kNN within range and kNN total samples
         nweight = 0.0
         tweight = 0.0
