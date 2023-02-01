@@ -142,7 +142,7 @@ class BayesianClassifier:
         #Return the weighted probability. 
         return wp
         
-class NaiveBayesClassifier(BayesianClassifer):
+class NaiveBayesClassifier(BayesianClassifier):
     """
     The NaiveBayesClassifer extends BayesianClassifer and adds functionalities specific to Naive Bayesian classification. 
     """
@@ -166,13 +166,13 @@ class NaiveBayesClassifier(BayesianClassifer):
             p *= self.weighted_probability(f, category, self.feature_probability)
         return p
         
-     def naive_probability(self, sample, category):
+    def naive_probability(self, sample, category):
         """
         Calculates the Naive Bayes probability that a specific sample belongs to a specific category, P(category | sample), by multiplying the 
         sample_prob by the category_prob.
         """
         sample_prob = self.sample_probability(sample, category)
-        category_prob = self.get_category_count(cateogry) / self.get_sample_total()
+        category_prob = self.get_category_count(category) / self.get_sample_total()
         return sample_prob * category_prob
     
     def set_threshold(self, category, t):
@@ -281,7 +281,7 @@ class FisherBayesClassifier(BayesianClassifier):
         """
         Returns the minimum value for an input category or 0 if there is no set minimum. 
         """
-        if category no in self.minimums:
+        if category not in self.minimums:
             return 0
         return self.minimums[category]
     
