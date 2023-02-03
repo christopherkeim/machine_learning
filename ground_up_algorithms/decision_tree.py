@@ -380,3 +380,27 @@ of samples as entropy = E pi * log2(pi)   [from i=1 to n]
 						text += '%s:	%d\n' % (str(value), count)
 						
 					draw.text((x - 20, y), text, (0,0,0))
+
+
+#Test option executed on run.
+def main():
+	test = input("Would you like to create a test instance of the DecisionTree class? (y/n) ")
+	if test == 'y' or test == 'Y':
+		test_dt()
+	else:
+		print("Enjoy the code! If you'd like to run a quick test like this, just re-run the script.")
+		
+def test_dt():
+	import numpy as np
+
+	l = []
+	for i in range(100):
+		l.append([])
+		for j in range(5):
+			l[i].append(np.random.randint(1,10))
+
+	n = DecisionTree(l)
+	n.drawTree(n.tree)
+	print("You can open the file named 'tree.jpg' to view the instantiated DecisionTree's structure.")
+	print(type(n))
+main()
