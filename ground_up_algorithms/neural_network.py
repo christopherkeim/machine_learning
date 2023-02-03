@@ -335,5 +335,5 @@ def main():
 def test_nn(db_name):
 	n = NeuralNetwork(db_name)
 	n.make_tables()
-	return n
+	print(type(n))
 main()
