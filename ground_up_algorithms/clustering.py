@@ -61,3 +61,24 @@ class Cluster:
 
         return best_matches
 
+#Test option executed on run.
+def main():
+	test = input("Would you like to run a test of the K-means clustering function? (y/n) ")
+	if test == 'y' or test == 'Y':
+		test_kmc()
+	else:
+		print("Enjoy the code! If you'd like to do a quick test like this, just re-run the script.")
+		
+def test_kmc():
+    data = []
+    for i in range(100):
+        data.append([])
+        for j in range(5):
+            data[i].append(np.random.randint(1,10))
+
+    a = Cluster.kcluster(data, distance_f=euclidean, k=4)
+    print("Here are our clusters, each holding the indices of samples from the dataset: ", "\n")
+    for i in range(len(a)):
+        print(a[i])
+	
+main()
