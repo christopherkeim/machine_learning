@@ -3,7 +3,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 import math
-import random
 
 from optimization import Optimize
 
@@ -90,7 +89,7 @@ class WeightedKnn:
         """
         train_set, test_set = [], []
         for sample in data:
-            if random.random() < test:
+            if np.random.random() < test:
                 test_set.append(sample)
                 
             else:
