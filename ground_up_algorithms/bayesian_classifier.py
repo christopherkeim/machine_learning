@@ -7,7 +7,7 @@ class BayesianClassifier:
     """
     The BayesianClassifer base class.
     
-    Note that this class does not have a classify() method.
+    Note that this base class does not have a classify() method.
     """
     def __init__(self, get_features):
         """
