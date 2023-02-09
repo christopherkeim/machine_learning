@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import math
+import sqlite3
+from sqlite3 import Error
 
 class BayesianClassifier:
     """
@@ -18,10 +20,22 @@ class BayesianClassifier:
         This method opens a SQLite database for the classifer and creates the featureCounts and categoryCounts tables,
         if they don't exist yet.
         """
-        self.con = sqlite.connect(dbname)
-        self.con.execute("create table if not exists featureCounts(feature, category, count)")
-        self.con.execute("create table if not exists categoryCounts(category, count)")
-        
+        self.con = None
+        try:
+            self.con = sqlite3.connect(dbname)
+            print("Connection to SQLite DB successful.")
+        except Error as e:
+            print(f"The error '{e}' occurred")
+
+        #Cursor
+        cursor = self.con.cursor()
+        try:
+            cursor.execute("CREATE TABLE IF NOT EXISTS featureCounts(feature, category, count)")
+            cursor.execute("CREATE TABLE IF NOT EXISTS categoryCounts(category, count)")
+            print("Tables featureCounts and categoryCounts successfully created.")
+        except Error as e:
+            print(f"The error '{e}' occurred")
+
     def inc_feature_count(self, feature, category):
         """
         Database modifier method for the featureCounts table.
@@ -30,18 +44,20 @@ class BayesianClassifier:
         category.
         """
         count = self.get_feature_count(feature, category)
+        cursor = self.con.cursor()
         if count == 0:
-            self.con.execute("insert into featureCounts values ('%s', '%s', 1)" % (feature, category))
+            cursor.execute("INSTERT INTO featureCounts VALUES ('%s', '%s', 1)" % (feature, category))
         
         else:
-            self.con.execute("update featureCounts set count=%d where feature='%s' and category='%s'" % (count+1, feature, category))
+            cursor.execute("UPDATE featureCounts SET count=%d WHERE feature='%s' AND category='%s'" % (count+1, feature, category))
             
     def get_feature_count(self, feature, category):
         """Database access method for featureCounts table.
         
         Retrieves the count value for an input feature and category combination. Returns 0 if not in table.
         """
-        result = self.con.execute("select count from featureCounts where feature='%s' and category='%s'" % (feature, category)).fetchone()
+        cursor = self.con.cursor()
+        result = cursor.execute("SELECT count FROM featureCounts WHERE feature='%s' AND category='%s'" % (feature, category)).fetchone()
         if result == None:
             return 0
         
@@ -55,11 +71,12 @@ class BayesianClassifier:
         Increases an input category's count + 1 or creates an entry if it doesn't exist yet.
         """
         count = self.get_catgory_count(category)
+        cursor = self.con.cursor()
         if count == 0:
-            self.con.execute("insert into categoryCounts values ('%s', 1)" % (category))
+            cursor.execute("INSERT INTO categoryCounts VALUES ('%s', 1)" % (category))
             
         else:
-            self.con.execute("update categoryCounts set count=%d where category='%s'" % (count+1, category))
+            cursor.execute("UPDATE categoryCounts SET count=%d WHERE category='%s'" % (count+1, category))
             
     def get_category_count(self, category):
         """
@@ -67,7 +84,8 @@ class BayesianClassifier:
         
         Retrieves the count value for an input category or returns 0 if that category is not in the table.
         """
-        result = self.con.execute("select count from categoryCounts where category='%s'" % (category)).fetchone()
+        cursor = self.con.cursor()
+        result = cursor.execute("SELECT count FROM categoryCounts WHERE category='%s'" % (category)).fetchone()
         if result == None:
             return 0
         
@@ -81,8 +99,9 @@ class BayesianClassifier:
         Constructs list of all categories stored in this table.
         """
         category_list = []
-        current = self.con.execute("select category from categoryCounts")
-        for c in current:
+        cursor = self.con.cursor()
+        result = cursor.execute("SELECT category FROM categoryCounts")
+        for c in result:
             category_list.append(c[0])
         return category_list
     
@@ -93,7 +112,8 @@ class BayesianClassifier:
         Returns the total number of samples that the classifier has been trained on so far, equal to category1 + category2 + 
         category3 + ...
         """
-        result = self.con.execute("select sum(count) from categoryCounts").fetchone()
+        cursor = self.con.cursor()
+        result = cursor.execute("select sum(count) from categoryCounts").fetchone()
         if result == None:
             return 0
         
@@ -302,11 +322,4 @@ class FisherBayesClassifier(BayesianClassifier):
                 best = c
                 max = p
         return best
-               
-    
-        
-        
-        
-        
-        
-        
+   
