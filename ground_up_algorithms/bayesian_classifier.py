@@ -323,3 +323,29 @@ class FisherBayesClassifier(BayesianClassifier):
                 max = p
         return best
    
+#Test option executed on run.
+def main():
+	test = input("Would you like to create test instances of the BayesianClassifier and children classes? (y/n) ")
+	if test == 'y' or test == 'Y':
+		db_name = 'test.db'
+		test_bc(db_name)
+	else:
+		print("Enjoy the code! If you'd like to perform a quick test like this, just re-run the script.")
+		
+def test_bc(db_name):
+	#Test option executed on run.
+    def get_features():
+        pass
+
+    a = BayesianClassifier(get_features)
+    print(type(a))
+
+    b = NaiveBayesClassifier(get_features)
+    print(type(b))
+
+    c = FisherBayesClassifier(get_features)
+    print(type(c))
+
+    c.setdb(db_name)
+
+main() 
