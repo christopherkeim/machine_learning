@@ -1,5 +1,5 @@
 # machine_learning
-![Data Science Cover (Blue, ReadMe vers)](https://user-images.githubusercontent.com/122534665/236703962-02d80e5c-0187-4eb4-b846-5d2e2e4b6331.png)
+![Data Science Cover (Blue, ReadMe vers)](https://user-images.githubusercontent.com/122534665/236728826-be2fd3ba-a62e-4d62-8ae7-7f4e4b1a50f7.png)
 
 
 **Data Science | Machine Learning | Deep Learning:**
